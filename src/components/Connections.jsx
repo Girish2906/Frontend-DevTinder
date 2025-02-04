@@ -3,6 +3,7 @@ import { BASE_URL } from '../utils/constants' ;
 import axios from 'axios' ; 
 import {useDispatch, useSelector} from 'react-redux' ; 
 import { addConnections } from '../utils/connectionSlice';
+import { Link } from 'react-router-dom';
  
 const Connections = () => {
     const connections = useSelector((store) => store.connections); 
@@ -31,7 +32,7 @@ const Connections = () => {
     <div className='flex flex-col justify-center my-10 w-1/2 m-auto'>
         <h1 className='text-bold text-2xl text-center text-3xl font-bold'>Connections</h1>
         {connections.map(connection => {
-            const {firstName , lastName , photoUrl , gender , skills} = connection ; 
+            const {firstName , lastName , photoUrl , gender , skills , _id} = connection ; 
             return <div className="flex m-4 p-4 rounded-lg bg-base-300">
                 <div>
                     <img className="w-20 h-20" src={photoUrl} alt="image" />
@@ -41,6 +42,7 @@ const Connections = () => {
                     <p>{gender}</p>
                     <p>{skills.join(', ')}</p>
                 </div>
+                <Link to={"/chat/" + _id }><button  className='btn btn-primary'>Chat</button></Link>
             </div>
         } )}
     </div>

@@ -8,6 +8,8 @@ import appStore from './utils/appStore' ;
 import Feed from "./components/Feed" ; 
 import Connections from "./components/Connections";
 import Requests from "./components/Requests";
+import Chat from "./components/Chat";
+import { io } from "socket.io-client";
 
 function App() {
   return (
@@ -20,7 +22,8 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />}></Route>
               <Route path="/connections" element={<Connections />}></Route> 
-              <Route path="/requests" element={<Requests />}></Route> 
+              <Route path="/requests" element={<Requests />}></Route>
+              <Route path="/chat/:targetUserId" element={<Chat/>}></Route> 
             </Route>
           </Routes>
         </BrowserRouter>
