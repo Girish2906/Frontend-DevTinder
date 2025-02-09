@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { useState , useEffect } from "react";
 import { createSocketConnection } from "../utils/socket";
 import { useSelector } from "react-redux"; 
+import axios from "axios";
+import { BASE_URL } from "../utils/constants";
 
 const Chat = () => {
 
@@ -9,23 +11,44 @@ const Chat = () => {
     // console.log(targetUserId) ; 
     const [messages , setMessages] = useState([[{text: "Hello World"}]]) ; 
     const [newMessage , setNewMessage] = useState("") ; 
-    const user = useSelector((store) => store.user.data) ; 
+    const user = useSelector((store) => store?.user?.data) ; 
     const userId = user?._id ;
-    const firstName = user.firstName ; 
+    const firstName = user?.firstName ; 
     console.log("!$%! ",targetUserId , userId) ;  
     const sendMessage = () => {
         const socket = createSocketConnection() ; 
         socket.emit("sendMessage" , {firstName , userId , targetUserId , text: newMessage}) ; 
         setNewMessage("") ; 
     }
-    useEffect(() => {
 
+    const fetchChatMessages = async () => {
+        const chat = await axios.get(BASE_URL + "/chat/" + targetUserId , {
+            withCredentials: true , 
+        }) ; 
+        console.log("this is chat" , chat);
+        const chatMessages = chat?.data.messages.map((msg) => {
+            return {
+                firstName: msg?.senderId?.firstName , 
+                lastName: msg?.senderId?.lastName , 
+                text: msg.text , 
+            }
+        }) ; 
+        console.log(chatMessages);
+        
+        setMessages(chatMessages) ; 
+    } ; 
+
+    useEffect(() => {
+        fetchChatMessages() ; 
+    } , []) ; 
+
+    useEffect(() => {
         const socket = createSocketConnection() ;
         socket.emit("joinChat" , {targetUserId , userId}) ; 
 
-        socket.on("messageReceived" , ({firstName , text}) => {
+        socket.on("messageReceived" , ({firstName , lastName, text}) => {
             console.log(firstName + " : "  + text) ; 
-            setMessages(messages => [...messages , {firstName , text}]) ; 
+            setMessages(messages => [...messages , {firstName , lastName , text}]) ; 
         })
         //whenever the component unmounts
         return () => {
@@ -41,7 +64,7 @@ const Chat = () => {
                     return (
                         <div key = {index} className="chat chat-start" >
                             <div className="chat-header">
-                                {msg.firstName}
+                                {`${msg.firstName} ${msg.lastName} `}
                                 <time className="text-xs opacity-50">2 hours ago</time>
                             </div>
                             <div className="chat-bubble">{msg.text}</div>
